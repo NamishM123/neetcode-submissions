@@ -27,8 +27,8 @@ function bool(formData: FormData, key: string): boolean | null {
   return null;
 }
 
-type ScreenshotMeta = { chartType: string; caption: string };
-type ExistingMeta = { id: number; chartType: string; caption: string };
+type ScreenshotMeta = { chartType: string; caption: string; evidenceTag?: string };
+type ExistingMeta = { id: number; chartType: string; caption: string; evidenceTag?: string };
 
 export async function saveTrade(formData: FormData): Promise<TradeActionResult> {
   const id = num(formData, "id");
@@ -88,6 +88,10 @@ export async function saveTrade(formData: FormData): Promise<TradeActionResult> 
     followedRules: bool(formData, "followedRules"),
     acceptedRisk: bool(formData, "acceptedRisk"),
     executionGrade: str(formData, "executionGrade") || null,
+    executionTiming: str(formData, "executionTiming") || null,
+    riskAcceptanceAfterEntry: str(formData, "riskAcceptanceAfterEntry") || null,
+    managementMistake: str(formData, "managementMistake") || null,
+    edgeType: str(formData, "edgeType") || null,
     narrative: str(formData, "narrative"),
     whatWentWell: str(formData, "whatWentWell"),
     whatToImprove: str(formData, "whatToImprove"),
@@ -107,7 +111,7 @@ export async function saveTrade(formData: FormData): Promise<TradeActionResult> 
     for (const s of existing) {
       await db
         .update(screenshots)
-        .set({ chartType: s.chartType, caption: s.caption })
+        .set({ chartType: s.chartType, caption: s.caption, evidenceTag: s.evidenceTag || null })
         .where(eq(screenshots.id, s.id));
     }
     const deletedIds: number[] = JSON.parse(str(formData, "deletedScreenshotIds") || "[]");
@@ -133,6 +137,7 @@ export async function saveTrade(formData: FormData): Promise<TradeActionResult> 
       url,
       chartType: metas[i]?.chartType ?? "Other",
       caption: metas[i]?.caption ?? "",
+      evidenceTag: metas[i]?.evidenceTag || null,
       sortOrder: i,
     });
   }

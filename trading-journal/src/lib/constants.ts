@@ -67,6 +67,58 @@ export const DIRECTIONS = [
   { value: "short", label: "Short" },
 ] as const;
 
+export const EXECUTION_TIMINGS = [
+  "Early",
+  "On time",
+  "Late",
+  "Chased",
+  "Hesitated then entered worse",
+  "Entered before trigger",
+  "Entered after trigger was gone",
+] as const;
+
+export const RISK_ACCEPTANCE_AFTER_ENTRY = [
+  "Yes",
+  "No",
+  "I moved it",
+  "I froze",
+  "I cut early from fear",
+  "I added emotionally",
+  "I hoped",
+] as const;
+
+export const MANAGEMENT_MISTAKES = [
+  "None",
+  "Moved stop wider",
+  "Moved stop too tight",
+  "Cut winner early",
+  "Did not pay myself",
+  "Held after absorption failed",
+  "Added without plan",
+  "Exited because scared",
+  "Ignored reversal on DOM",
+] as const;
+
+export const EDGE_TYPES = [
+  { value: "edge", label: "Edge — repeatable behavior at meaningful location" },
+  { value: "prediction", label: "Prediction — thought price should go there" },
+  { value: "impulse", label: "Impulse — clicked before information" },
+  { value: "revenge", label: "Revenge — wanted money back" },
+] as const;
+
+export const EVIDENCE_TAGS = [
+  "Entry moment",
+  "Absorption",
+  "Reload",
+  "Pulling liquidity",
+  "Failed breakout",
+  "Delta divergence",
+  "Footprint imbalance",
+  "DOM flip",
+  "Exit reason",
+  "Mistake evidence",
+] as const;
+
 // Mark Douglas — Trading in the Zone
 export const FIVE_TRUTHS = [
   "Anything can happen.",

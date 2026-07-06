@@ -51,6 +51,18 @@ export const trades = pgTable("trades", {
   acceptedRisk: boolean("accepted_risk"),
   executionGrade: text("execution_grade"), // A-F, process only
 
+  // Execution timing
+  executionTiming: text("execution_timing"), // early | onTime | late | chased | hesitated | beforeTrigger | afterTrigger
+
+  // Risk acceptance after entry
+  riskAcceptanceAfterEntry: text("risk_acceptance_after_entry"), // yes | no | moved | froze | cutEarly | addedEmotionally | hoped
+
+  // Management mistakes
+  managementMistake: text("management_mistake"), // none | stopWider | stopTight | cutWinnerEarly | didNotPayMyself | heldAfterFailed | addedWithoutPlan | exitedScared | ignoredReversal
+
+  // Edge vs prediction vs impulse vs revenge
+  edgeType: text("edge_type"), // edge | prediction | impulse | revenge
+
   // Narrative
   narrative: text("narrative").notNull().default(""),
   whatWentWell: text("what_went_well").notNull().default(""),
@@ -70,6 +82,7 @@ export const screenshots = pgTable("screenshots", {
   url: text("url").notNull(),
   chartType: text("chart_type").notNull().default("Other"),
   caption: text("caption").notNull().default(""),
+  evidenceTag: text("evidence_tag"), // entry | absorption | reload | pullLiquidity | failedBreakout | deltaDivergence | footprintImbalance | domFlip | exitReason | mistakeEvidence
   sortOrder: integer("sort_order").notNull().default(0),
 });
 

@@ -6,10 +6,15 @@ import { saveTrade } from "@/actions/trades";
 import {
   CHART_TYPES,
   DIRECTIONS,
+  EDGE_TYPES,
   EMOTIONS,
+  EVIDENCE_TAGS,
+  EXECUTION_TIMINGS,
   GRADES,
   INSTRUMENTS,
   LOCATIONS,
+  MANAGEMENT_MISTAKES,
+  RISK_ACCEPTANCE_AFTER_ENTRY,
 } from "@/lib/constants";
 import { todayISO } from "@/lib/format";
 import {
@@ -28,6 +33,7 @@ type NewShot = {
   preview: string;
   chartType: string;
   caption: string;
+  evidenceTag?: string;
 };
 
 type ExistingShot = {
@@ -35,6 +41,7 @@ type ExistingShot = {
   url: string;
   chartType: string;
   caption: string;
+  evidenceTag?: string;
   deleted: boolean;
 };
 
@@ -59,6 +66,7 @@ export function TradeForm({
       url: s.url,
       chartType: s.chartType,
       caption: s.caption,
+      evidenceTag: s.evidenceTag || undefined,
       deleted: false,
     }))
   );
@@ -85,14 +93,14 @@ export function TradeForm({
     for (const s of newShots) fd.append("screenshotFiles", s.file);
     fd.set(
       "screenshotMeta",
-      JSON.stringify(newShots.map((s) => ({ chartType: s.chartType, caption: s.caption })))
+      JSON.stringify(newShots.map((s) => ({ chartType: s.chartType, caption: s.caption, evidenceTag: s.evidenceTag })))
     );
     fd.set(
       "existingScreenshots",
       JSON.stringify(
         existingShots
           .filter((s) => !s.deleted)
-          .map((s) => ({ id: s.id, chartType: s.chartType, caption: s.caption }))
+          .map((s) => ({ id: s.id, chartType: s.chartType, caption: s.caption, evidenceTag: s.evidenceTag }))
       )
     );
     fd.set(
@@ -274,6 +282,74 @@ export function TradeForm({
         </div>
       </Card>
 
+      {/* 4b — Execution Timing */}
+      <Card>
+        <SectionTitle hint="Did you enter too early, on time, too late, or chase it?">
+          Execution Timing
+        </SectionTitle>
+        <Field label="Timing of entry">
+          <Select name="executionTiming" defaultValue={trade?.executionTiming ?? ""}>
+            <option value="">—</option>
+            {EXECUTION_TIMINGS.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      </Card>
+
+      {/* 4c — Risk Acceptance After Entry */}
+      <Card>
+        <SectionTitle hint="What happened to your stop and risk management after you entered?">
+          After Entry — Risk Management
+        </SectionTitle>
+        <Field label="After entry, what happened to your stop?">
+          <Select name="riskAcceptanceAfterEntry" defaultValue={trade?.riskAcceptanceAfterEntry ?? ""}>
+            <option value="">—</option>
+            {RISK_ACCEPTANCE_AFTER_ENTRY.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      </Card>
+
+      {/* 4d — Management Mistakes */}
+      <Card>
+        <SectionTitle hint="What management mistakes did you make during this trade?">
+          Management Mistakes
+        </SectionTitle>
+        <Field label="What went wrong with management?">
+          <Select name="managementMistake" defaultValue={trade?.managementMistake ?? ""}>
+            <option value="">—</option>
+            {MANAGEMENT_MISTAKES.map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      </Card>
+
+      {/* 4e — Edge vs Prediction */}
+      <Card>
+        <SectionTitle hint="Was this trade based on an edge you identified, or a prediction/impulse/revenge?">
+          Trade Source
+        </SectionTitle>
+        <Field label="What type of trade was this?">
+          <Select name="edgeType" defaultValue={trade?.edgeType ?? ""}>
+            <option value="">—</option>
+            {EDGE_TYPES.map((e) => (
+              <option key={e.value} value={e.value}>
+                {e.label}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      </Card>
+
       {/* 5 — Evidence */}
       <Card>
         <SectionTitle hint="Drop in your delta chart, footprint, DOM — tag each one. Paste the YouTube link once your recap video is up.">
@@ -323,11 +399,15 @@ export function TradeForm({
                   src={s.url}
                   chartType={s.chartType}
                   caption={s.caption}
+                  evidenceTag={s.evidenceTag}
                   onChartType={(v) =>
                     setExistingShots((cur) => cur.map((c, j) => (j === i ? { ...c, chartType: v } : c)))
                   }
                   onCaption={(v) =>
                     setExistingShots((cur) => cur.map((c, j) => (j === i ? { ...c, caption: v } : c)))
+                  }
+                  onEvidenceTag={(v) =>
+                    setExistingShots((cur) => cur.map((c, j) => (j === i ? { ...c, evidenceTag: v } : c)))
                   }
                   onRemove={() =>
                     setExistingShots((cur) => cur.map((c, j) => (j === i ? { ...c, deleted: true } : c)))
@@ -341,11 +421,15 @@ export function TradeForm({
                 src={s.preview}
                 chartType={s.chartType}
                 caption={s.caption}
+                evidenceTag={s.evidenceTag}
                 onChartType={(v) =>
                   setNewShots((cur) => cur.map((c, j) => (j === i ? { ...c, chartType: v } : c)))
                 }
                 onCaption={(v) =>
                   setNewShots((cur) => cur.map((c, j) => (j === i ? { ...c, caption: v } : c)))
+                }
+                onEvidenceTag={(v) =>
+                  setNewShots((cur) => cur.map((c, j) => (j === i ? { ...c, evidenceTag: v } : c)))
                 }
                 onRemove={() => setNewShots((cur) => cur.filter((_, j) => j !== i))}
               />
@@ -401,15 +485,19 @@ function ShotTile({
   src,
   chartType,
   caption,
+  evidenceTag,
   onChartType,
   onCaption,
+  onEvidenceTag,
   onRemove,
 }: {
   src: string;
   chartType: string;
   caption: string;
+  evidenceTag?: string;
   onChartType: (v: string) => void;
   onCaption: (v: string) => void;
+  onEvidenceTag: (v: string) => void;
   onRemove: () => void;
 }) {
   return (
@@ -431,6 +519,14 @@ function ShotTile({
           {CHART_TYPES.map((c) => (
             <option key={c} value={c}>
               {c}
+            </option>
+          ))}
+        </Select>
+        <Select value={evidenceTag ?? ""} onChange={(e) => onEvidenceTag(e.target.value)} className="!py-1.5 text-xs">
+          <option value="">Evidence tag…</option>
+          {EVIDENCE_TAGS.map((t) => (
+            <option key={t} value={t}>
+              {t}
             </option>
           ))}
         </Select>
