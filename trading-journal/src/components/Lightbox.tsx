@@ -47,7 +47,10 @@ export function ScreenshotGallery({ shots }: { shots: Screenshot[] }) {
               loading="lazy"
             />
             <div className="flex items-center justify-between gap-2 px-2.5 py-2">
-              <Badge>{s.chartType}</Badge>
+              <span className="flex items-center gap-1.5">
+                <Badge>{s.chartType}</Badge>
+                {s.evidenceTag ? <Badge tone="accent">{s.evidenceTag}</Badge> : null}
+              </span>
               {s.caption ? (
                 <span className="truncate text-xs text-muted">{s.caption}</span>
               ) : null}
@@ -76,6 +79,7 @@ export function ScreenshotGallery({ shots }: { shots: Screenshot[] }) {
               ← Prev
             </button>
             <span className="font-medium">{current.chartType}</span>
+            {current.evidenceTag ? <span className="text-accent">· {current.evidenceTag}</span> : null}
             {current.caption ? <span className="text-muted">· {current.caption}</span> : null}
             <span className="text-faint">
               {(open ?? 0) + 1}/{shots.length}

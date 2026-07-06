@@ -6,7 +6,14 @@ import { Badge, Card, EmptyState, SectionTitle } from "@/components/ui";
 import { PnlText } from "@/components/badges";
 import { fmtDateShort, fmtMoney, fmtPct, fmtR } from "@/lib/format";
 import { statsForTrades, violations } from "@/lib/stats";
-import { EMOTIONS, GRADES } from "@/lib/constants";
+import {
+  EDGE_TYPES,
+  EMOTIONS,
+  EXECUTION_TIMINGS,
+  GRADES,
+  MANAGEMENT_MISTAKES,
+  RISK_ACCEPTANCE_AFTER_ENTRY,
+} from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -49,6 +56,29 @@ export default async function StatsPage() {
     emotion: e,
     trades: all.filter((t) => t.emotionBefore === e),
   })).filter((r) => r.trades.length > 0);
+
+  const byEdgeType = EDGE_TYPES.map((e) => ({
+    label: e.label.split(" — ")[0],
+    value: e.value,
+    trades: all.filter((t) => t.edgeType === e.value),
+  })).filter((r) => r.trades.length > 0);
+
+  const byRiskAcceptance = RISK_ACCEPTANCE_AFTER_ENTRY.map((r) => ({
+    answer: r,
+    trades: all.filter((t) => t.riskAcceptanceAfterEntry === r),
+  })).filter((r) => r.trades.length > 0);
+
+  const byTiming = EXECUTION_TIMINGS.map((tm) => ({
+    timing: tm,
+    trades: all.filter((t) => t.executionTiming === tm),
+  })).filter((r) => r.trades.length > 0);
+
+  const byMistake = MANAGEMENT_MISTAKES.filter((m) => m !== "None")
+    .map((m) => ({
+      mistake: m,
+      trades: all.filter((t) => t.managementMistake === m),
+    }))
+    .filter((r) => r.trades.length > 0);
 
   return (
     <div className="mx-auto max-w-3xl space-y-5">
@@ -179,6 +209,86 @@ export default async function StatsPage() {
                   {fmtPct(statsForTrades(ets).winRate)}
                 </span>
                 <PnlText value={statsForTrades(ets).pnl} className="flex-1 text-right" />
+              </div>
+            ))}
+          </div>
+        </Card>
+      ) : null}
+
+      {byEdgeType.length > 0 ? (
+        <Card>
+          <SectionTitle hint="Douglas: an edge is a higher probability, not a prediction. Where does your money actually come from?">
+            Edge or prediction?
+          </SectionTitle>
+          <div className="space-y-2">
+            {byEdgeType.map(({ label, value, trades: ets }) => (
+              <div key={value} className="flex items-center gap-3 text-sm">
+                <span className="w-28 font-medium">{label}</span>
+                <span className="w-16 text-muted">{ets.length} trade{ets.length === 1 ? "" : "s"}</span>
+                <span className="w-14 text-right tabular-nums text-muted">
+                  {fmtPct(statsForTrades(ets).winRate)}
+                </span>
+                <PnlText value={statsForTrades(ets).pnl} className="flex-1 text-right" />
+              </div>
+            ))}
+          </div>
+        </Card>
+      ) : null}
+
+      {byRiskAcceptance.length > 0 ? (
+        <Card>
+          <SectionTitle hint="When you accept risk, your decisions improve. When you resist it, you sabotage. Here's the proof.">
+            Risk acceptance vs PnL
+          </SectionTitle>
+          <div className="space-y-2">
+            {byRiskAcceptance.map(({ answer, trades: rts }) => (
+              <div key={answer} className="flex items-center gap-3 text-sm">
+                <span className="w-40 truncate" title={answer}>{answer}</span>
+                <span className="w-16 text-muted">{rts.length} trade{rts.length === 1 ? "" : "s"}</span>
+                <span className="w-14 text-right tabular-nums text-muted">
+                  {fmtPct(statsForTrades(rts).winRate)}
+                </span>
+                <PnlText value={statsForTrades(rts).pnl} className="flex-1 text-right" />
+              </div>
+            ))}
+          </div>
+        </Card>
+      ) : null}
+
+      {byTiming.length > 0 ? (
+        <Card>
+          <SectionTitle hint="For DOM trading, most damage comes from being early, late, or chasing.">
+            Execution timing vs PnL
+          </SectionTitle>
+          <div className="space-y-2">
+            {byTiming.map(({ timing, trades: tts }) => (
+              <div key={timing} className="flex items-center gap-3 text-sm">
+                <span className="w-40 truncate" title={timing}>{timing}</span>
+                <span className="w-16 text-muted">{tts.length} trade{tts.length === 1 ? "" : "s"}</span>
+                <span className="w-14 text-right tabular-nums text-muted">
+                  {fmtPct(statsForTrades(tts).winRate)}
+                </span>
+                <PnlText value={statsForTrades(tts).pnl} className="flex-1 text-right" />
+              </div>
+            ))}
+          </div>
+        </Card>
+      ) : null}
+
+      {byMistake.length > 0 ? (
+        <Card>
+          <SectionTitle hint="What each management mistake has cost you.">
+            Management mistakes vs PnL
+          </SectionTitle>
+          <div className="space-y-2">
+            {byMistake.map(({ mistake, trades: mts }) => (
+              <div key={mistake} className="flex items-center gap-3 text-sm">
+                <span className="w-40 truncate" title={mistake}>{mistake}</span>
+                <span className="w-16 text-muted">{mts.length} trade{mts.length === 1 ? "" : "s"}</span>
+                <span className="w-14 text-right tabular-nums text-muted">
+                  {fmtPct(statsForTrades(mts).winRate)}
+                </span>
+                <PnlText value={statsForTrades(mts).pnl} className="flex-1 text-right" />
               </div>
             ))}
           </div>

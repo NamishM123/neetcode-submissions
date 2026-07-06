@@ -43,6 +43,10 @@ export default async function TradeDetailPage({
     ["Conviction", trade.conviction != null ? `${trade.conviction}/5` : null],
     ["Followed rules", yn(trade.followedRules)],
     ["Accepted the risk", yn(trade.acceptedRisk)],
+    ["Execution timing", trade.executionTiming],
+    ["Stop after entry", trade.riskAcceptanceAfterEntry],
+    ["Management mistake", trade.managementMistake],
+    ["Edge or prediction", edgeLabel(trade.edgeType)],
   ];
 
   return (
@@ -158,4 +162,15 @@ function yn(b: boolean | null): string | null {
   if (b === true) return "Yes";
   if (b === false) return "No";
   return null;
+}
+
+function edgeLabel(v: string | null): string | null {
+  if (!v) return null;
+  const map: Record<string, string> = {
+    edge: "Edge",
+    prediction: "Prediction",
+    impulse: "Impulse",
+    revenge: "Revenge",
+  };
+  return map[v] ?? v;
 }
